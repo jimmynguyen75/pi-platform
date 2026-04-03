@@ -1,0 +1,59 @@
+services:
+  # Backend — NestJS API
+  - type: web
+    name: pi-platform-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: node dist/main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: pi-platform-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: pi-platform-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: pi-platform-db
+          property: database
+      - key: DATABASE_USER
+        fromDatabase:
+          name: pi-platform-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: pi-platform-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # Frontend — React/Vite static site
+  - type: web
+    name: pi-platform-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: pi-platform-api
+          type: web
+          property: host
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: pi-platform-db
+    plan: free
