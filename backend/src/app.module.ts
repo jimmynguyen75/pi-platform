@@ -8,11 +8,15 @@ import { ActivitiesModule } from './modules/activities/activities.module';
 import { HistoryModule } from './modules/history/history.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { DealsModule } from './modules/deals/deals.module';
+import { FundsModule } from './modules/funds/funds.module';
 import { Employee } from './modules/employees/employee.entity';
 import { Domain } from './modules/domains/domain.entity';
 import { Partner } from './modules/partners/partner.entity';
 import { Activity } from './modules/activities/activity.entity';
 import { History } from './modules/history/history.entity';
+import { Deal } from './modules/deals/deal.entity';
+import { Fund } from './modules/funds/fund.entity';
 
 @Module({
   imports: [
@@ -26,7 +30,7 @@ import { History } from './modules/history/history.entity';
         database: config.get('DATABASE_NAME', 'pi_platform'),
         username: config.get('DATABASE_USER', 'pi_user'),
         password: config.get('DATABASE_PASSWORD', 'pi_password'),
-        entities: [Employee, Domain, Partner, Activity, History],
+        entities: [Employee, Domain, Partner, Activity, History, Deal, Fund],
         synchronize: true,
         ssl: config.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
         logging: config.get('NODE_ENV') === 'development',
@@ -40,6 +44,8 @@ import { History } from './modules/history/history.entity';
     ActivitiesModule,
     HistoryModule,
     DashboardModule,
+    DealsModule,
+    FundsModule,
   ],
 })
 export class AppModule {}

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   LayoutDashboard, Users, Settings, Search, Bell, LogOut,
   Globe, ChevronLeft, ChevronRight, AlertTriangle, Crown,
-  Handshake,
+  Handshake, Briefcase, Wallet,
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { dashboardApi } from '../../api/dashboard';
@@ -20,6 +20,8 @@ import { cn } from '../../lib/utils';
 const NAV = [
   { path: '/',         icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/partners', icon: Handshake,       label: 'Partners' },
+  { path: '/deals',    icon: Briefcase,       label: 'Deals' },
+  { path: '/funds',    icon: Wallet,          label: 'Funds' },
   { path: '/managers', icon: Users,           label: 'Managers' },
 ];
 const ADMIN_NAV = { path: '/admin', icon: Settings, label: 'Admin Panel' };
@@ -83,6 +85,8 @@ export function AppLayout() {
   const activeKey = (() => {
     const p = location.pathname;
     if (p.startsWith('/partners')) return '/partners';
+    if (p.startsWith('/deals')) return '/deals';
+    if (p.startsWith('/funds')) return '/funds';
     if (p.startsWith('/managers')) return '/managers';
     if (p.startsWith('/admin')) return '/admin';
     return '/';

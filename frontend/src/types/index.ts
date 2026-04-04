@@ -1,7 +1,19 @@
 export type ManagerRole = 'admin' | 'manager';
 export type PriorityLevel = 'Strategic' | 'Key' | 'Normal';
 export type PartnerStatus = 'Active' | 'Risk' | 'Inactive';
+export type PartnerTier = 'Titanium' | 'Platinum' | 'Gold' | 'Silver' | 'Registered' | 'Strategic Partner';
 export type ActivityType = 'meeting' | 'deal' | 'email' | 'call' | 'review';
+export type DealStatus = 'In Progress' | 'Won' | 'Lost' | 'Pending';
+export type BusinessUnit = 'HSI' | 'HSC' | 'HAS' | 'HSE' | 'HSV';
+export type FundType = 'Rebate' | 'Program Fund' | 'Marketing Fund';
+export type ClaimStatus = 'Pending' | 'Submitted' | 'Approved' | 'Rejected' | 'Paid';
+
+export interface Certification {
+  name: string;
+  issuedDate?: string;
+  expiryDate?: string;
+  level?: string;
+}
 
 /** System user — either an admin or a manager */
 export interface Manager {
@@ -55,9 +67,64 @@ export interface Partner {
   officialLinks: OfficialLink[];
   contactInfo: ContactInfo;
   notes?: string;
+  partnerTier?: PartnerTier;
+  certifications?: Certification[];
   activities?: Activity[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Deal {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  customerName: string;
+  dealValue: number;
+  expectedCloseDate?: string;
+  status: DealStatus;
+  businessUnit?: BusinessUnit;
+  assignedManagerId?: string;
+  assignedManager?: Manager;
+  description?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DealStats {
+  total: number;
+  won: number;
+  lost: number;
+  inProgress: number;
+  pending: number;
+  successRate: number;
+  totalPipelineValue: number;
+  wonValue: number;
+  byBU: Record<string, number>;
+}
+
+export interface Fund {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  fundType: FundType;
+  fiscalYear: number;
+  totalAmount: number;
+  receivedAmount: number;
+  spentAmount: number;
+  claimStatus: ClaimStatus;
+  notes?: string;
+  partner?: Partner;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FundSummary {
+  totalByType: Record<string, { total: number; received: number; spent: number; remaining: number }>;
+  grandTotal: number;
+  grandReceived: number;
+  utilizationRate: number;
+  pendingClaims: number;
 }
 
 export interface Activity {

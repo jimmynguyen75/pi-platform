@@ -1,12 +1,15 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import * as dayjs from 'dayjs';
+import * as dayjsLib from 'dayjs';
+const dayjs = (dayjsLib as any).default ?? dayjsLib;
 import { Employee } from '../../modules/employees/employee.entity';
 import { Domain } from '../../modules/domains/domain.entity';
 import { Partner } from '../../modules/partners/partner.entity';
 import { Activity } from '../../modules/activities/activity.entity';
 import { History } from '../../modules/history/history.entity';
+import { Deal } from '../../modules/deals/deal.entity';
+import { Fund } from '../../modules/funds/fund.entity';
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -15,8 +18,9 @@ const dataSource = new DataSource({
   database: process.env.DATABASE_NAME || 'pi_platform',
   username: process.env.DATABASE_USER || 'pi_user',
   password: process.env.DATABASE_PASSWORD || 'pi_password',
-  entities: [Employee, Domain, Partner, Activity, History],
+  entities: [Employee, Domain, Partner, Activity, History, Deal, Fund],
   synchronize: true,
+  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 async function seed() {
@@ -26,6 +30,8 @@ async function seed() {
   // Clear existing data
   await dataSource.query('TRUNCATE TABLE history CASCADE');
   await dataSource.query('TRUNCATE TABLE activities CASCADE');
+  await dataSource.query('TRUNCATE TABLE deals CASCADE');
+  await dataSource.query('TRUNCATE TABLE funds CASCADE');
   await dataSource.query('TRUNCATE TABLE partners CASCADE');
   await dataSource.query('TRUNCATE TABLE domains CASCADE');
   await dataSource.query('TRUNCATE TABLE employees CASCADE');
@@ -34,6 +40,8 @@ async function seed() {
   const domainRepo = dataSource.getRepository(Domain);
   const partnerRepo = dataSource.getRepository(Partner);
   const activityRepo = dataSource.getRepository(Activity);
+  const dealRepo = dataSource.getRepository(Deal);
+  const fundRepo = dataSource.getRepository(Fund);
 
   // ─── Domains ─────────────────────────────────────────────────────────────
   const domains = await domainRepo.save([
@@ -442,6 +450,63 @@ async function seed() {
   }
 
   console.log('✓ Health scores calculated');
+
+  // ─── Deals ────────────────────────────────────────────────────────────────
+  const futureDate = (n: number) => dayjs().add(n, 'day').format('YYYY-MM-DD');
+
+  const dealData = [
+    { partnerId: microsoft.id, partnerName: 'Microsoft', customerName: 'Viettel Group', dealValue: 280000, expectedCloseDate: futureDate(30), status: 'In Progress' as const, businessUnit: 'HSI' as const, description: 'Microsoft 365 E5 + Azure EDP for 3,000 seats' },
+    { partnerId: microsoft.id, partnerName: 'Microsoft', customerName: 'VPBank', dealValue: 150000, expectedCloseDate: futureDate(15), status: 'Won' as const, businessUnit: 'HSC' as const, description: 'Microsoft Copilot pilot deployment' },
+    { partnerId: cisco.id, partnerName: 'Cisco', customerName: 'VNPT', dealValue: 320000, expectedCloseDate: futureDate(45), status: 'In Progress' as const, businessUnit: 'HSI' as const, description: 'Campus SD-WAN transformation 12 sites' },
+    { partnerId: cisco.id, partnerName: 'Cisco', customerName: 'MoIT', dealValue: 95000, expectedCloseDate: futureDate(-10), status: 'Won' as const, businessUnit: 'HAS' as const, description: 'Cisco Catalyst 9000 network refresh' },
+    { partnerId: aws.id, partnerName: 'AWS', customerName: 'Techcombank', dealValue: 480000, expectedCloseDate: futureDate(60), status: 'Pending' as const, businessUnit: 'HSC' as const, description: 'AWS cloud migration — core banking workloads' },
+    { partnerId: aws.id, partnerName: 'AWS', customerName: 'FPT Software', dealValue: 210000, expectedCloseDate: futureDate(20), status: 'In Progress' as const, businessUnit: 'HSI' as const, description: 'AWS re:Start and DevOps toolchain' },
+    { partnerId: crowdstrike.id, partnerName: 'CrowdStrike', customerName: 'Petrovietnam', dealValue: 75000, expectedCloseDate: futureDate(25), status: 'In Progress' as const, businessUnit: 'HSE' as const, description: 'Falcon XDR + Identity Protection bundle' },
+    { partnerId: crowdstrike.id, partnerName: 'CrowdStrike', customerName: 'VinGroup', dealValue: 120000, expectedCloseDate: futureDate(-5), status: 'Won' as const, businessUnit: 'HSE' as const, description: 'Full Falcon platform 8,000 endpoints' },
+    { partnerId: salesforce.id, partnerName: 'Salesforce', customerName: 'Masan Group', dealValue: 95000, expectedCloseDate: futureDate(40), status: 'Pending' as const, businessUnit: 'HSC' as const, description: 'Sales Cloud + Service Cloud enterprise rollout' },
+    { partnerId: dell.id, partnerName: 'Dell Technologies', customerName: 'Vietnam Airlines', dealValue: 560000, expectedCloseDate: futureDate(50), status: 'In Progress' as const, businessUnit: 'HSV' as const, description: 'PowerEdge server refresh + VxRail HCI cluster' },
+    { partnerId: deloitte.id, partnerName: 'Deloitte', customerName: 'Vietcombank', dealValue: 340000, expectedCloseDate: futureDate(-20), status: 'Won' as const, businessUnit: 'HAS' as const, description: 'Digital transformation advisory SOW Phase 2' },
+    { partnerId: paloalto.id, partnerName: 'Palo Alto Networks', customerName: 'HCMC Tax Dept', dealValue: 88000, expectedCloseDate: futureDate(35), status: 'In Progress' as const, businessUnit: 'HSE' as const, description: 'Prisma Access SASE 12 branches' },
+    { partnerId: gcloud.id, partnerName: 'Google Cloud', customerName: 'Grab Vietnam', dealValue: 195000, expectedCloseDate: futureDate(55), status: 'Pending' as const, businessUnit: 'HSI' as const, description: 'BigQuery + Vertex AI analytics platform' },
+    { partnerId: servicenow.id, partnerName: 'ServiceNow', customerName: 'EVN', dealValue: 165000, expectedCloseDate: futureDate(-30), status: 'Lost' as const, businessUnit: 'HAS' as const, description: 'ITSM + HRSD implementation lost to competitor' },
+    { partnerId: hpe.id, partnerName: 'HPE', customerName: 'Vietnam Post', dealValue: 240000, expectedCloseDate: futureDate(70), status: 'Pending' as const, businessUnit: 'HSV' as const, description: 'HPE GreenLake infrastructure-as-a-service' },
+  ];
+
+  for (const d of dealData) {
+    await dealRepo.save(dealRepo.create(d as any));
+  }
+  console.log('✓ Deals seeded');
+
+  // ─── Funds ────────────────────────────────────────────────────────────────
+  const fundData = [
+    // Microsoft
+    { partnerId: microsoft.id, partnerName: 'Microsoft', fundType: 'Rebate' as const, fiscalYear: 2025, totalAmount: 250000, receivedAmount: 150000, spentAmount: 80000, claimStatus: 'Approved' as const, notes: 'Based on Q1+Q2 Azure consumption targets (120%+ attainment)' },
+    { partnerId: microsoft.id, partnerName: 'Microsoft', fundType: 'Program Fund' as const, fiscalYear: 2025, totalAmount: 80000, receivedAmount: 80000, spentAmount: 45000, claimStatus: 'Paid' as const, notes: 'Go-to-market investment fund FY25 — co-sell motions' },
+    { partnerId: microsoft.id, partnerName: 'Microsoft', fundType: 'Marketing Fund' as const, fiscalYear: 2025, totalAmount: 30000, receivedAmount: 20000, spentAmount: 18500, claimStatus: 'Submitted' as const, notes: 'Ignite Vietnam 2025 event co-sponsorship' },
+    // Cisco
+    { partnerId: cisco.id, partnerName: 'Cisco', fundType: 'Rebate' as const, fiscalYear: 2025, totalAmount: 180000, receivedAmount: 90000, spentAmount: 0, claimStatus: 'Submitted' as const, notes: 'H1 FY25 back-end rebate — 115% revenue attainment' },
+    { partnerId: cisco.id, partnerName: 'Cisco', fundType: 'Marketing Fund' as const, fiscalYear: 2025, totalAmount: 25000, receivedAmount: 25000, spentAmount: 22000, claimStatus: 'Paid' as const, notes: 'Partner event + customer breakfast seminars' },
+    // AWS
+    { partnerId: aws.id, partnerName: 'AWS', fundType: 'Program Fund' as const, fiscalYear: 2025, totalAmount: 120000, receivedAmount: 60000, spentAmount: 30000, claimStatus: 'Approved' as const, notes: 'AWS Partner Activation Fund — consulting engagements' },
+    { partnerId: aws.id, partnerName: 'AWS', fundType: 'Marketing Fund' as const, fiscalYear: 2025, totalAmount: 40000, receivedAmount: 40000, spentAmount: 35000, claimStatus: 'Paid' as const, notes: 'AWS Summit Vietnam sponsorship + demo booth' },
+    // CrowdStrike
+    { partnerId: crowdstrike.id, partnerName: 'CrowdStrike', fundType: 'Rebate' as const, fiscalYear: 2025, totalAmount: 65000, receivedAmount: 0, spentAmount: 0, claimStatus: 'Pending' as const, notes: 'FY25 annual rebate — claim in Q4' },
+    { partnerId: crowdstrike.id, partnerName: 'CrowdStrike', fundType: 'Marketing Fund' as const, fiscalYear: 2025, totalAmount: 15000, receivedAmount: 15000, spentAmount: 12000, claimStatus: 'Paid' as const, notes: 'CrowdStrike Fal.Con regional event' },
+    // Dell Technologies
+    { partnerId: dell.id, partnerName: 'Dell Technologies', fundType: 'Rebate' as const, fiscalYear: 2025, totalAmount: 200000, receivedAmount: 100000, spentAmount: 0, claimStatus: 'Approved' as const, notes: 'Q2 sell-through rebate — infrastructure products' },
+    { partnerId: dell.id, partnerName: 'Dell Technologies', fundType: 'Program Fund' as const, fiscalYear: 2025, totalAmount: 50000, receivedAmount: 50000, spentAmount: 28000, claimStatus: 'Paid' as const, notes: 'Dell Titanium partner enablement fund' },
+    // Deloitte
+    { partnerId: deloitte.id, partnerName: 'Deloitte', fundType: 'Program Fund' as const, fiscalYear: 2025, totalAmount: 35000, receivedAmount: 35000, spentAmount: 35000, claimStatus: 'Paid' as const, notes: 'Joint go-to-market fund — digital transformation practice' },
+    // Google Cloud
+    { partnerId: gcloud.id, partnerName: 'Google Cloud', fundType: 'Program Fund' as const, fiscalYear: 2025, totalAmount: 80000, receivedAmount: 40000, spentAmount: 15000, claimStatus: 'Approved' as const, notes: 'Google Partner Incentive Fund — data & AI specialization' },
+    { partnerId: gcloud.id, partnerName: 'Google Cloud', fundType: 'Marketing Fund' as const, fiscalYear: 2025, totalAmount: 20000, receivedAmount: 0, spentAmount: 0, claimStatus: 'Pending' as const, notes: 'Google Cloud Next Vietnam event — awaiting approval' },
+  ];
+
+  for (const f of fundData) {
+    await fundRepo.save(fundRepo.create(f as any));
+  }
+  console.log('✓ Funds seeded');
+
   console.log('\n🎉 Seed complete!');
   console.log('\n─── Login Credentials ────────────────────────────');
   console.log('Admin:   admin@company.com          / password123');

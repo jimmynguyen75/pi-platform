@@ -10,6 +10,8 @@ import PartnersPage from './pages/Partners';
 import PartnerDetailPage from './pages/PartnerDetail';
 import AdminPage from './pages/Admin';
 import PublicPage from './pages/Public';
+import DealsPage from './pages/Deals';
+import FundsPage from './pages/Funds';
 import { useAppStore } from './store/useAppStore';
 
 const queryClient = new QueryClient({
@@ -44,6 +46,8 @@ export default function App() {
               <Route path="partners" element={<PartnersPage />} />
               <Route path="partners/:id" element={<PartnerDetailPage />} />
               <Route path="managers" element={<ManagersPage />} />
+              <Route path="deals" element={<DealsPage />} />
+              <Route path="funds" element={<FundsPage />} />
               <Route path="admin" element={<AdminPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

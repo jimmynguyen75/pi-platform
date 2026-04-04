@@ -14,6 +14,14 @@ import { Activity } from '../activities/activity.entity';
 
 export type PriorityLevel = 'Strategic' | 'Key' | 'Normal';
 export type PartnerStatus = 'Active' | 'Risk' | 'Inactive';
+export type PartnerTier = 'Titanium' | 'Platinum' | 'Gold' | 'Silver' | 'Registered' | 'Strategic Partner';
+
+export interface Certification {
+  name: string;
+  issuedDate?: string;
+  expiryDate?: string;
+  level?: string;
+}
 
 export interface OfficialLink {
   label: string;
@@ -75,6 +83,17 @@ export class Partner {
 
   @Column({ type: 'jsonb', name: 'contact_info', default: {} })
   contactInfo: ContactInfo;
+
+  @Column({
+    name: 'partner_tier',
+    type: 'enum',
+    enum: ['Titanium', 'Platinum', 'Gold', 'Silver', 'Registered', 'Strategic Partner'],
+    nullable: true,
+  })
+  partnerTier: PartnerTier;
+
+  @Column({ type: 'jsonb', name: 'certifications', default: [] })
+  certifications: Certification[];
 
   @Column({ type: 'text', nullable: true })
   notes: string;

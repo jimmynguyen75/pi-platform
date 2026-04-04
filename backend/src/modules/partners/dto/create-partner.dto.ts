@@ -67,6 +67,16 @@ export class CreatePartnerDto {
   @IsOptional()
   contactInfo?: Record<string, string>;
 
+  @ApiPropertyOptional({ enum: ['Titanium', 'Platinum', 'Gold', 'Silver', 'Registered', 'Strategic Partner'] })
+  @IsEnum(['Titanium', 'Platinum', 'Gold', 'Silver', 'Registered', 'Strategic Partner'])
+  @IsOptional()
+  partnerTier?: 'Titanium' | 'Platinum' | 'Gold' | 'Silver' | 'Registered' | 'Strategic Partner';
+
+  @ApiPropertyOptional()
+  @IsArray()
+  @IsOptional()
+  certifications?: Array<{ name: string; issuedDate?: string; expiryDate?: string; level?: string }>;
+
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()

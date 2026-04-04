@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Plus, Search, Eye, Edit2, Trash2, Filter, X,
+  Plus, Search, Eye, Edit2, Trash2, Filter, X, Download,
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import { partnersApi } from '../../api/partners';
@@ -24,6 +24,7 @@ import {
 import { Label } from '../../components/ui/label';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useAppStore } from '../../store/useAppStore';
+import { exportToExcel } from '../../lib/export';
 import { useDebounce } from '../../hooks/useDebounce';
 import type { Partner } from '../../types';
 import { cn } from '../../lib/utils';
@@ -123,6 +124,19 @@ export default function PartnersPage() {
   const { user } = useAppStore();
   const canEdit = user?.role === 'admin' || user?.role === 'manager';
 
+  const handleExport = () => {
+    exportToExcel((partners ?? []).map(p => ({
+      'Name': p.name,
+      'Domain': p.domain?.name ?? '',
+      'Manager': p.manager?.name ?? '',
+      'Priority': p.priorityLevel,
+      'Status': p.status,
+      'Health Score': p.healthScore,
+      'Tier': p.partnerTier ?? '',
+      'Description': p.description ?? '',
+    })), 'Partners_Report');
+  };
+
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [domainFilter, setDomainFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -187,11 +201,16 @@ export default function PartnersPage() {
             )}
           </p>
         </div>
-        {canEdit && (
-          <Button onClick={() => { setEditTarget(null); setModalOpen(true); }}>
-            <Plus size={15} /> Add Partner
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download size={14} className="mr-1.5" />Export
           </Button>
-        )}
+          {canEdit && (
+            <Button onClick={() => { setEditTarget(null); setModalOpen(true); }}>
+              <Plus size={15} /> Add Partner
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
