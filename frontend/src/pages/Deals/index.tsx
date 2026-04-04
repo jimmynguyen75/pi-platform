@@ -141,10 +141,10 @@ function DealForm({ partners, defaultValues, onSubmit, loading }: {
         </div>
         <div>
           <Label>Business Unit</Label>
-          <Select value={vals.businessUnit} onValueChange={(v) => set('businessUnit', v as BusinessUnit)}>
+          <Select value={vals.businessUnit || '_none'} onValueChange={(v) => set('businessUnit', v === '_none' ? '' : v)}>
             <SelectTrigger><SelectValue placeholder="Select BU" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="_none">None</SelectItem>
               {BUS.map((bu) => <SelectItem key={bu} value={bu}>{bu}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -281,17 +281,17 @@ export default function DealsPage() {
                 className="pl-3"
               />
             </div>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <Select value={filterStatus || '_all'} onValueChange={(v) => setFilterStatus(v === '_all' ? '' : v)}>
               <SelectTrigger className="w-[150px]"><SelectValue placeholder="All Statuses" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="_all">All Statuses</SelectItem>
                 {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Select value={filterBU} onValueChange={setFilterBU}>
+            <Select value={filterBU || '_all'} onValueChange={(v) => setFilterBU(v === '_all' ? '' : v)}>
               <SelectTrigger className="w-[120px]"><SelectValue placeholder="All BUs" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All BUs</SelectItem>
+                <SelectItem value="_all">All BUs</SelectItem>
                 {BUS.map((bu) => <SelectItem key={bu} value={bu}>{bu}</SelectItem>)}
               </SelectContent>
             </Select>

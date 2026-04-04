@@ -323,24 +323,24 @@ export default function FundsPage() {
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center gap-3">
-            <Select value={filterType} onValueChange={setFilterType}>
+            <Select value={filterType || '_all'} onValueChange={(v) => setFilterType(v === '_all' ? '' : v)}>
               <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Fund Types" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Fund Types</SelectItem>
+                <SelectItem value="_all">All Fund Types</SelectItem>
                 {FUND_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Select value={filterYear} onValueChange={setFilterYear}>
+            <Select value={filterYear || '_all'} onValueChange={(v) => setFilterYear(v === '_all' ? '' : v)}>
               <SelectTrigger className="w-[130px]"><SelectValue placeholder="All Years" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Years</SelectItem>
+                <SelectItem value="_all">All Years</SelectItem>
                 {FISCAL_YEARS.map((y) => <SelectItem key={y} value={y.toString()}>FY{y}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <Select value={filterStatus || '_all'} onValueChange={(v) => setFilterStatus(v === '_all' ? '' : v)}>
               <SelectTrigger className="w-[150px]"><SelectValue placeholder="All Statuses" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="_all">All Statuses</SelectItem>
                 {CLAIM_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
