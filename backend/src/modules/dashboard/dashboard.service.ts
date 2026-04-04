@@ -79,7 +79,7 @@ export class DashboardService {
       managers.map(async (mgr) => {
         const partners = await this.partnerRepo
           .createQueryBuilder('p')
-          .where('p.manager_id = :id', { id: mgr.id })
+          .where('p.managerId = :id', { id: mgr.id })
           .getMany();
 
         const weights = { Strategic: 3, Key: 2, Normal: 1 };
@@ -148,7 +148,7 @@ export class DashboardService {
       .leftJoinAndSelect('p.domain', 'domain')
       .leftJoinAndSelect('p.manager', 'manager')
       .where('p.status IN (:...statuses)', { statuses: ['Risk', 'Inactive'] })
-      .orderBy('p.health_score', 'ASC')
+      .orderBy('p.healthScore', 'ASC')
       .take(20)
       .getMany();
   }
@@ -158,8 +158,8 @@ export class DashboardService {
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.domain', 'domain')
       .leftJoinAndSelect('p.manager', 'manager')
-      .where("p.priority_level = 'Strategic'")
-      .orderBy('p.health_score', 'DESC')
+      .where('p.priorityLevel = :pl', { pl: 'Strategic' })
+      .orderBy('p.healthScore', 'DESC')
       .take(10)
       .getMany();
   }
