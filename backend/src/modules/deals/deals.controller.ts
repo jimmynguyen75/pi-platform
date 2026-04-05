@@ -4,6 +4,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { DealsService } from './deals.service';
 import { CreateDealDto } from './dto/create-deal.dto';
 
@@ -60,5 +62,13 @@ export class DealsController {
   @ApiOperation({ summary: 'Delete a deal' })
   remove(@Param('id') id: string) {
     return this.dealsService.remove(id);
+  }
+
+  @Post('seed')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({ summary: 'Seed sample deals (admin only, skips if data exists)' })
+  seedSample() {
+    return this.dealsService.seedSampleData();
   }
 }

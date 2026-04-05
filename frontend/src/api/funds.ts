@@ -15,4 +15,5 @@ export const fundsApi = {
   create: (data: Partial<Fund>) => post<Fund>('/funds', data),
   update: (id: string, data: Partial<Fund>) => patch<Fund>(`/funds/${id}`, data),
   delete: (id: string) => del<void>(`/funds/${id}`),
+  seed: () => post<{ created: number }>('/funds/seed'),
 };

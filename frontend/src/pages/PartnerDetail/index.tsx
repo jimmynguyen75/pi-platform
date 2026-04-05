@@ -14,6 +14,7 @@ import { employeesApi } from '../../api/employees';
 import { domainsApi } from '../../api/domains';
 import { StatusBadge, PriorityBadge } from '../../components/StatusBadge';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
+import { PartnerLogo } from '../../components/PartnerLogo';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -192,15 +193,7 @@ export default function PartnerDetailPage() {
         </div>
 
         <div className="flex items-start gap-4">
-          {partner.logoUrl ? (
-            <img src={partner.logoUrl} alt={partner.name} className="w-14 h-14 rounded-2xl object-contain bg-gray-50 border border-gray-100 shrink-0" />
-          ) : (
-            <Avatar size="xl">
-              <AvatarFallback gradient={partner.priorityLevel === 'Strategic' ? 'purple' : 'indigo'}>
-                {partner.name[0]}
-              </AvatarFallback>
-            </Avatar>
-          )}
+          <PartnerLogo name={partner.name} logoUrl={partner.logoUrl} size="lg" />
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-gray-900">{partner.name}</h1>
             <div className="flex flex-wrap items-center gap-2 mt-1.5">

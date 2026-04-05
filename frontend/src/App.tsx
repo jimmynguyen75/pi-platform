@@ -12,7 +12,9 @@ import AdminPage from './pages/Admin';
 import PublicPage from './pages/Public';
 import DealsPage from './pages/Deals';
 import FundsPage from './pages/Funds';
+import AccountPage from './pages/Account';
 import { useAppStore } from './store/useAppStore';
+import { I18nProvider } from './lib/i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +30,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <I18nProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delayDuration={300}>
         <BrowserRouter>
@@ -48,6 +51,7 @@ export default function App() {
               <Route path="managers" element={<ManagersPage />} />
               <Route path="deals" element={<DealsPage />} />
               <Route path="funds" element={<FundsPage />} />
+              <Route path="account" element={<AccountPage />} />
               <Route path="admin" element={<AdminPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
@@ -55,5 +59,6 @@ export default function App() {
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
+    </I18nProvider>
   );
 }

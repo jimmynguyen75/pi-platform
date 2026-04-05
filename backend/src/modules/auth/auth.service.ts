@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -42,5 +42,26 @@ export class AuthService {
 
   async getProfile(userId: string) {
     return this.employeeRepo.findOne({ where: { id: userId } });
+  }
+
+  async updateProfile(userId: string, dto: { name?: string; title?: string; avatarUrl?: string }) {
+    if (dto.name !== undefined && dto.name.trim().length === 0) {
+      throw new BadRequestException('Name cannot be empty');
+    }
+    await this.employeeRepo.update(userId, dto);
+    return this.employeeRepo.findOne({ where: { id: userId } });
+  }
+
+  async changePassword(userId: string, dto: { currentPassword: string; newPassword: string }) {
+    const employee = await this.employeeRepo.findOne({
+      where: { id: userId },
+      select: ['id', 'password'],
+    });
+    if (!employee) throw new UnauthorizedException();
+    const isValid = await bcrypt.compare(dto.currentPassword, employee.password);
+    if (!isValid) throw new BadRequestException('Current password is incorrect');
+    const hashed = await bcrypt.hash(dto.newPassword, 10);
+    await this.employeeRepo.update(userId, { password: hashed });
+    return { success: true };
   }
 }

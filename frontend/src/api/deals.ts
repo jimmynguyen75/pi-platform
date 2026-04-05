@@ -17,4 +17,5 @@ export const dealsApi = {
   create: (data: Partial<Deal>) => post<Deal>('/deals', data),
   update: (id: string, data: Partial<Deal>) => patch<Deal>(`/deals/${id}`, data),
   delete: (id: string) => del<void>(`/deals/${id}`),
+  seed: () => post<{ created: number }>('/deals/seed'),
 };

@@ -4,6 +4,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { FundsService } from './funds.service';
 import { CreateFundDto } from './dto/create-fund.dto';
 
@@ -61,5 +63,13 @@ export class FundsController {
   @ApiOperation({ summary: 'Delete a fund entry' })
   remove(@Param('id') id: string) {
     return this.fundsService.remove(id);
+  }
+
+  @Post('seed')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({ summary: 'Seed sample funds (admin only, skips if data exists)' })
+  seedSample() {
+    return this.fundsService.seedSampleData();
   }
 }

@@ -4,6 +4,8 @@ import { Settings, Users, Layers, RefreshCw, Crown, Edit2, Trash2, Plus, Shield,
 import { employeesApi } from '../../api/employees';
 import { domainsApi } from '../../api/domains';
 import { partnersApi } from '../../api/partners';
+import { dealsApi } from '../../api/deals';
+import { fundsApi } from '../../api/funds';
 import { useAppStore } from '../../store/useAppStore';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Badge } from '../../components/ui/badge';
@@ -254,6 +256,14 @@ function SystemTab() {
     mutationFn: partnersApi.bulkRecalculate,
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['partners'] }); qc.invalidateQueries({ queryKey: ['dashboard-stats'] }); },
   });
+  const seedDealsMut = useMutation({
+    mutationFn: () => (dealsApi as any).seed(),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['deals'] }),
+  });
+  const seedFundsMut = useMutation({
+    mutationFn: () => (fundsApi as any).seed(),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['funds'] }),
+  });
 
   const SCORING_ROWS = [
     { label: 'Recency (0–50)', detail: '≤7d=50, ≤14d=40, ≤30d=30, ≤60d=15, else 0' },
@@ -285,6 +295,41 @@ function SystemTab() {
             <Alert variant="success" className="mt-4">
               <AlertDescription>All health scores recalculated successfully.</AlertDescription>
             </Alert>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Sample data */}
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-2">
+          <Info size={14} className="text-indigo-500" />
+          <CardTitle>Sample Data</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-gray-500">
+            Seed sample deals and fund entries based on existing partners. Skips automatically if data already exists.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              loading={seedDealsMut.isPending}
+              onClick={() => seedDealsMut.mutate()}
+            >
+              <RefreshCw size={13} /> Seed Sample Deals
+            </Button>
+            <Button
+              variant="outline"
+              loading={seedFundsMut.isPending}
+              onClick={() => seedFundsMut.mutate()}
+            >
+              <RefreshCw size={13} /> Seed Sample Funds
+            </Button>
+          </div>
+          {seedDealsMut.isSuccess && (
+            <Alert variant="success"><AlertDescription>Deals seeded: {(seedDealsMut.data as any)?.created ?? 0} records created.</AlertDescription></Alert>
+          )}
+          {seedFundsMut.isSuccess && (
+            <Alert variant="success"><AlertDescription>Funds seeded: {(seedFundsMut.data as any)?.created ?? 0} records created.</AlertDescription></Alert>
           )}
         </CardContent>
       </Card>

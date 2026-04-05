@@ -1,14 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, ILike } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Deal } from './deal.entity';
 import { CreateDealDto } from './dto/create-deal.dto';
+import { Partner } from '../partners/partner.entity';
 
 @Injectable()
 export class DealsService {
   constructor(
     @InjectRepository(Deal)
     private readonly dealsRepo: Repository<Deal>,
+    @InjectRepository(Partner)
+    private readonly partnerRepo: Repository<Partner>,
   ) {}
 
   async create(dto: CreateDealDto): Promise<Deal> {
@@ -97,5 +100,45 @@ export class DealsService {
     }
 
     return { total, won, lost, inProgress, pending, successRate, totalPipelineValue, wonValue, byBU };
+  }
+
+  async seedSampleData(): Promise<{ created: number }> {
+    const partners = await this.partnerRepo.find({ take: 20 });
+    if (partners.length === 0) return { created: 0 };
+
+    const existing = await this.dealsRepo.count();
+    if (existing > 0) return { created: 0 };
+
+    const BUS: Array<'HSI' | 'HSC' | 'HAS' | 'HSE' | 'HSV'> = ['HSI', 'HSC', 'HAS', 'HSE', 'HSV'];
+    const STATUSES: Array<'In Progress' | 'Won' | 'Lost' | 'Pending'> = ['In Progress', 'Won', 'Lost', 'Pending'];
+    const CUSTOMERS = ['Viettel Group', 'VPBank', 'VNPT', 'Techcombank', 'VinGroup', 'FPT Software',
+      'Vietnam Airlines', 'Petrovietnam', 'Masan Group', 'MoIT', 'EVN', 'Grab Vietnam'];
+
+    const futureDate = (n: number) => {
+      const d = new Date();
+      d.setDate(d.getDate() + n);
+      return d.toISOString().split('T')[0];
+    };
+
+    const deals: Partial<Deal>[] = [];
+    partners.forEach((p, i) => {
+      const customer = CUSTOMERS[i % CUSTOMERS.length];
+      const status = STATUSES[i % STATUSES.length];
+      deals.push({
+        partnerId: p.id,
+        partnerName: p.name,
+        customerName: customer,
+        dealValue: (Math.floor(Math.random() * 450) + 50) * 1000,
+        expectedCloseDate: new Date(futureDate(Math.floor(Math.random() * 90) - 15)),
+        status,
+        businessUnit: BUS[i % BUS.length],
+        description: `${p.name} solution deployment for ${customer}`,
+      });
+    });
+
+    for (const d of deals) {
+      await this.dealsRepo.save(this.dealsRepo.create(d as any));
+    }
+    return { created: deals.length };
   }
 }

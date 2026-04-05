@@ -11,6 +11,7 @@ import { employeesApi } from '../../api/employees';
 import { StatusBadge, PriorityBadge } from '../../components/StatusBadge';
 import { HealthScoreBar } from '../../components/HealthScoreBar';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
+import { PartnerLogo } from '../../components/PartnerLogo';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -40,7 +41,7 @@ function PartnerForm({
   const [vals, setVals] = useState({
     name: defaultValues?.name ?? '',
     domainId: defaultValues?.domainId ?? '',
-    managerId: defaultValues?.managerId ?? '',
+    managerId: defaultValues?.managerId ?? '_none',
     priorityLevel: defaultValues?.priorityLevel ?? 'Normal',
     status: defaultValues?.status ?? 'Active',
     description: defaultValues?.description ?? '',
@@ -66,10 +67,10 @@ function PartnerForm({
         </div>
         <div>
           <Label>Manager</Label>
-          <Select value={vals.managerId} onValueChange={(v) => set('managerId', v)}>
+          <Select value={vals.managerId || '_none'} onValueChange={(v) => set('managerId', v === '_none' ? '' : v)}>
             <SelectTrigger><SelectValue placeholder="Assign manager" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Unassigned</SelectItem>
+              <SelectItem value="_none">Unassigned</SelectItem>
               {managers.filter(m => m.role === 'manager').map((m) => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -305,15 +306,7 @@ export default function PartnersPage() {
                       >
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            {rec.logoUrl ? (
-                              <img src={rec.logoUrl} alt={rec.name} className="w-9 h-9 rounded-xl object-contain bg-gray-50 border border-gray-100 shrink-0" />
-                            ) : (
-                              <Avatar size="md">
-                                <AvatarFallback gradient={rec.priorityLevel === 'Strategic' ? 'purple' : rec.priorityLevel === 'Key' ? 'indigo' : 'blue'}>
-                                  {rec.name[0]}
-                                </AvatarFallback>
-                              </Avatar>
-                            )}
+                            <PartnerLogo name={rec.name} logoUrl={rec.logoUrl} size="sm" />
                             <div>
                               <p className="text-sm font-semibold text-gray-900">{rec.name}</p>
                               {rec.domain && (
