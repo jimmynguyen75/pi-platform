@@ -387,11 +387,15 @@ export function AppLayout() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 sm:gap-2.5 px-1.5 sm:px-2 py-1.5 rounded-xl hover:bg-gray-50 transition-colors focus:outline-none">
-                  <Avatar size="sm">
-                    <AvatarFallback gradient={user?.role === 'admin' ? 'purple' : 'indigo'}>
-                      {user?.name?.[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={user.name} className="w-7 h-7 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <Avatar size="sm">
+                      <AvatarFallback gradient={user?.role === 'admin' ? 'purple' : 'indigo'}>
+                        {user?.name?.[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   <div className="text-left hidden sm:block">
                     <p className="text-sm font-semibold text-gray-800 leading-none">{user?.name}</p>
                     <p className="text-xs text-gray-500 leading-tight capitalize">{user?.role}</p>

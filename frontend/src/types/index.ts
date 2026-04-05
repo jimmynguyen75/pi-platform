@@ -196,6 +196,7 @@ export interface AuthUser {
   email: string;
   role: ManagerRole;
   title?: string;
+  avatarUrl?: string;
 }
 
 export interface ApiResponse<T> {

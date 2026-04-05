@@ -60,8 +60,8 @@ export default function AccountPage() {
     mutationFn: () => patch<ProfileData>('/auth/me', { name, title, avatarUrl }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['me'] });
-      // Update store so header reflects new name immediately
-      setAuth({ ...user!, name: data.name, title: data.title } as AuthUser, token);
+      // Update store so header reflects changes immediately
+      setAuth({ ...user!, name: data.name, title: data.title, avatarUrl: data.avatarUrl } as AuthUser, token);
       setProfileDirty(false);
     },
   });

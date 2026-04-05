@@ -677,10 +677,10 @@ export default function PartnerDetailPage() {
               </div>
               <div>
                 <Label>Manager</Label>
-                <Select value={editVals.managerId ?? ''} onValueChange={(v) => setEditVals((p: any) => ({ ...p, managerId: v }))}>
+                <Select value={editVals.managerId || '_none'} onValueChange={(v) => setEditVals((p: any) => ({ ...p, managerId: v === '_none' ? '' : v }))}>
                   <SelectTrigger><SelectValue placeholder="Assign manager" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
+                    <SelectItem value="_none">Unassigned</SelectItem>
                     {managers?.filter(m => m.role === 'manager').map((m) => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
