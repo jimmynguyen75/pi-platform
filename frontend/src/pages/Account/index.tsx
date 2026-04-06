@@ -20,11 +20,23 @@ interface ProfileData {
   avatarUrl?: string;
 }
 
-function toBase64(file: File): Promise<string> {
+function compressImage(file: File, maxSize = 200, quality = 0.75): Promise<string> {
   return new Promise((res, rej) => {
     const reader = new FileReader();
-    reader.onload = () => res(reader.result as string);
     reader.onerror = rej;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = rej;
+      img.onload = () => {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        res(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result as string;
+    };
     reader.readAsDataURL(file);
   });
 }
@@ -69,7 +81,7 @@ export default function AccountPage() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const b64 = await toBase64(file);
+    const b64 = await compressImage(file);
     setAvatarUrl(b64);
     setProfileDirty(true);
   };

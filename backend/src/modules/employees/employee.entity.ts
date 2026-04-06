@@ -34,7 +34,7 @@ export class Employee {
   @Column({ name: 'title', length: 100, nullable: true })
   title: string;
 
-  @Column({ name: 'avatar_url', nullable: true })
+  @Column({ name: 'avatar_url', type: 'text', nullable: true })
   avatarUrl: string;
 
   @OneToMany(() => Activity, (a) => a.manager)

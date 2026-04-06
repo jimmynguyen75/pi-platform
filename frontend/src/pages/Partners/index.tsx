@@ -269,31 +269,32 @@ export default function PartnersPage() {
         </CardContent>
       </Card>
 
-      {/* Table */}
+      {/* Table / Cards */}
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="p-5 space-y-3">
               {[1,2,3,4,5].map(i => <Skeleton key={i} className="h-12 w-full" />)}
             </div>
+          ) : (partners ?? []).length === 0 ? (
+            <p className="py-16 text-center text-sm text-gray-400">No partners found</p>
           ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-50">
-                  <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Partner</th>
-                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Priority</th>
-                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Health</th>
-                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Manager</th>
-                  <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Last Activity</th>
-                  <th className="px-5 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {(partners ?? []).length === 0 ? (
-                  <tr><td colSpan={7} className="py-16 text-center text-sm text-gray-400">No partners found</td></tr>
-                ) : (
-                  (partners ?? []).map((rec) => {
+            <>
+              {/* Desktop table */}
+              <table className="hidden sm:table w-full">
+                <thead>
+                  <tr className="border-b border-gray-50">
+                    <th className="px-5 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Partner</th>
+                    <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Priority</th>
+                    <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Health</th>
+                    <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Manager</th>
+                    <th className="px-3 py-3 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Last Activity</th>
+                    <th className="px-5 py-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {(partners ?? []).map((rec) => {
                     const acts = rec.activities ?? [];
                     const sorted = [...acts].sort((a, b) => a.date < b.date ? 1 : -1);
                     const days = sorted[0] ? dayjs().diff(dayjs(sorted[0].date), 'day') : null;
@@ -375,10 +376,62 @@ export default function PartnersPage() {
                         </td>
                       </tr>
                     );
-                  })
-                )}
-              </tbody>
-            </table>
+                  })}
+                </tbody>
+              </table>
+
+              {/* Mobile card list */}
+              <div className="sm:hidden divide-y divide-gray-50">
+                {(partners ?? []).map((rec) => {
+                  const acts = rec.activities ?? [];
+                  const sorted = [...acts].sort((a, b) => a.date < b.date ? 1 : -1);
+                  const days = sorted[0] ? dayjs().diff(dayjs(sorted[0].date), 'day') : null;
+
+                  return (
+                    <div
+                      key={rec.id}
+                      className="px-4 py-3.5 flex items-center gap-3 active:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate(`/partners/${rec.id}`)}
+                    >
+                      <PartnerLogo name={rec.name} logoUrl={rec.logoUrl} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{rec.name}</p>
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          <PriorityBadge priority={rec.priorityLevel} />
+                          <StatusBadge status={rec.status} />
+                          {rec.domain && (
+                            <span
+                              className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
+                              style={{ background: `${rec.domain.colorHex}18`, color: rec.domain.colorHex }}
+                            >
+                              {rec.domain.name}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 mt-1">
+                          <HealthScoreBar score={rec.healthScore} size="small" />
+                          {days !== null && (
+                            <span className={cn('text-[10px] font-medium', days > 30 ? 'text-red-500' : days > 14 ? 'text-amber-500' : 'text-green-500')}>
+                              {days === 0 ? 'Today' : `${days}d ago`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {canEdit && (
+                          <Button variant="ghost" size="icon-sm" onClick={(e) => { e.stopPropagation(); setEditTarget(rec); setModalOpen(true); }}>
+                            <Edit2 size={13} />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon-sm" onClick={(e) => { e.stopPropagation(); navigate(`/partners/${rec.id}`); }}>
+                          <Eye size={13} />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

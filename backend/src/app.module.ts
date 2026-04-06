@@ -10,6 +10,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DealsModule } from './modules/deals/deals.module';
 import { FundsModule } from './modules/funds/funds.module';
+import { SeedModule } from './database/seed/seed.module';
 import { Employee } from './modules/employees/employee.entity';
 import { Domain } from './modules/domains/domain.entity';
 import { Partner } from './modules/partners/partner.entity';
@@ -46,6 +47,7 @@ import { Fund } from './modules/funds/fund.entity';
     DashboardModule,
     DealsModule,
     FundsModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
